@@ -1,4 +1,4 @@
-struct Cart {
+pub struct Cart {
     pub header: CartHeader,
     pub prg_rom: ProgramRom,
     pub chr_rom: CharacterRom,
@@ -18,7 +18,8 @@ impl Cart {
             ::std::mem::transmute_copy(header_bytes)
         };
 
-        println!("{:?}", header);
+        // Validate error
+        header.validate().expect("Invalid header!");
 
         // Catch nasty errors
         if header.prg_rom_banks == 0 {
@@ -52,10 +53,12 @@ impl Cart {
 
 #[repr(C)]
 #[derive(Debug)]
-struct CartHeader {
+pub struct CartHeader {
     /** b"NES\r" */
     nes: [u8; 4],
+    /** Number of program ROM banks */
     prg_rom_banks: u8,
+    /** Number of character ROM banks */
     chr_rom_banks: u8,
     flags_6: u8,
     flags_7: u8,
@@ -67,14 +70,18 @@ struct CartHeader {
 }
 
 impl CartHeader {
+    pub fn validate(&self) -> Option<()> {
+        if b"NES\x1A" == &self.nes { Some(()) } else { None }
+    }
+
     pub fn mapper(&self) -> u8 {
         (self.flags_6 & 0xF0) >> 4 | (self.flags_7 & 0xF0)
     }
 }
 
-struct ProgramRom(usize, Vec<u8>);
+pub struct ProgramRom(usize, Vec<u8>);
 
-struct CharacterRom(usize, Vec<u8>);
+pub struct CharacterRom(usize, Vec<u8>);
 
 #[cfg(test)]
 mod tests {
@@ -84,8 +91,15 @@ mod tests {
     #[should_panic]
     fn detect_corrupt_program_rom() {
         let fake_header = b"NES\r\0\0\0\0\0\0\0\0\0\0\0\0";
-        let expected = b"NES\r";
-        let cart = Cart::new(fake_header);
+        Cart::new(fake_header);
+    }
+
+    #[test]
+    #[should_panic]
+    fn detect_corrupt_magic_bytes() {
+        let mut fake_header: Vec<u8> = vec![b'N', b'E', b's', 0x1A, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        fake_header.extend(vec![0u8; 0x4000]);
+        Cart::new(fake_header);
     }
 
     #[test]
