@@ -3,9 +3,13 @@ extern crate arrayref;
 
 
 mod cartridge;
+mod memory;
 
 use cartridge::*;
+use memory::*;
 
 fn main() {
-    println!("Hello, world!");
+    let cart_file = ::std::fs::read("nestest.nes").expect("Unable to read cartridge!");
+    let _cart = Cart::new(cart_file);
+    let _mem = Memory::new();
 }
