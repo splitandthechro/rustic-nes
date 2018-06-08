@@ -1,0 +1,7 @@
+[package]
+name = "rustic-nes"
+version = "0.1.0"
+authors = ["splittydev <splittydev@protonmail.com>"]
+
+[dependencies]
+arrayref = "0.3.4"
