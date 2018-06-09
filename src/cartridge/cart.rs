@@ -18,7 +18,7 @@ impl Cart {
             ::std::mem::transmute_copy(header_bytes)
         };
 
-        // Validate error
+        // Validate header
         header.validate().expect("Invalid header!");
 
         // Catch nasty errors
