@@ -1,4 +1,4 @@
-use ::cartridge::ProgramRom;
+use super::ProgramRom;
 
 pub struct Memory {
     pub bytes: [u8; 0x800],

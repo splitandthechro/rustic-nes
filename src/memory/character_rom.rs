@@ -1,0 +1,1 @@
+pub struct CharacterRom(pub usize, pub Vec<u8>);
